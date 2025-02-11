@@ -23,6 +23,7 @@ if uploaded_file is not None:
     filtro_descricao = st.checkbox('Filtrar por Descrição', value=True)
     filtro_equipamento = st.checkbox('Filtrar por Equipamento', value=True)
     filtro_numero = st.checkbox('Filtrar por Número', value=True)
+    filtro_nome_pessoa = st.checkbox('Nome', value=True)
     filtro_nome = st.checkbox('Filtrar por Nome', value=True)
     filtro_data = st.checkbox('Filtrar por Data', value=True)
     filtro_situacao = st.checkbox('Filtrar por Situação', value=True)
@@ -58,8 +59,10 @@ if uploaded_file is not None:
         equipamento = st.selectbox('Escolha o Equipamento', dados['Equipamento'].dropna().unique())
     if filtro_numero:
         numero = st.selectbox('Escolha o Número', dados['Número - Nota Fiscal'].dropna().unique())
+    if filtro_nome_pessoa:
+        nomePessoa = st.selectbox('Escolha o Nome', dados['Nome'].dropna().unique())
     if filtro_nome:
-        nome = st.selectbox('Escolha o Nome', dados['Nome - Vendedor'].dropna().unique())
+        nome = st.selectbox('Escolha o Nome', dados['Nome - Vendedor'].dropna().unique())    
     if filtro_data:
         data = st.selectbox('Escolha a Data', dados['Data'].dropna().unique())
     if filtro_situacao:
@@ -98,6 +101,8 @@ if uploaded_file is not None:
         filtro = filtro[filtro["Equipamento"] == equipamento]
     if filtro_numero:
         filtro = filtro[filtro["Número - Nota Fiscal"] == numero]
+    if filtro_nome_pessoa:
+        filtro = filtro[filtro["Nome"] == nomePessoa]    
     if filtro_nome:
         filtro = filtro[filtro["Nome - Vendedor"] == nome]
     if filtro_data:
