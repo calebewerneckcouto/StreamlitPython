@@ -47,7 +47,7 @@ if uploaded_file is not None:
     if colunas_a_remover:
         dados.drop(columns=colunas_a_remover, inplace=True)
         st.write("Colunas removidas com sucesso!")
-    
+
     # Filtros para exibir os dados, com base nas opções ativadas
     municipio = descricao = equipamento = numero = nome = data = situacao = garantia = problema = observacoes_recebimento = tecnico = observacoes_servico = observacoes_internas = data_conclusao = data_saida = nome_vendedor = categoria = forma_pagamento = None
 
@@ -55,6 +55,12 @@ if uploaded_file is not None:
         municipio = st.selectbox('Escolha o município', dados['Município'].dropna().unique())
     if filtro_descricao:
         descricao = st.selectbox('Escolha a descrição', dados['Descrição'].dropna().unique())
+        nomes_correspondentes = dados[dados['Descrição'] == descricao]['Nome'].unique()
+
+        # Filtrar o DataFrame apenas pelos nomes encontrados (independente da descrição)
+        dados = dados[dados['Nome'].isin(nomes_correspondentes)]
+        
+
     if filtro_equipamento:
         equipamento = st.selectbox('Escolha o Equipamento', dados['Equipamento'].dropna().unique())
     if filtro_numero:
@@ -133,7 +139,11 @@ if uploaded_file is not None:
         filtro = filtro[filtro["Descrição - Forma de pagamento"] == forma_pagamento]
 
     # Exibir os dados filtrados
-    st.dataframe(filtro)  # Exibe os dados filtrados de forma interativa
+    if filtro_descricao: 
+        st.dataframe(dados)  # Exibe os dados filtrados de forma interativa
+        
+    else:
+        st.dataframe(filtro)  # Exibe os dados filtrados de forma interativa
 
     # Colunas de interesse para cálculo de totais
     colunas_interesse = [
@@ -149,12 +159,17 @@ if uploaded_file is not None:
         return valor
 
     # Calcular e exibir os totais das colunas de interesse
-    for coluna in colunas_interesse:
-        if coluna in filtro.columns:
-            filtro[coluna] = filtro[coluna].apply(limpar_valor)
-            total_coluna = filtro[coluna].sum()
-            st.write(f"**Total de {coluna}:** R$ {total_coluna:,.2f}")
-        else:
-            st.write(f"⚠️ A coluna '{coluna}' não foi encontrada nos dados.")
-else:
-    st.write("Por favor, faça o upload de um arquivo CSV.")
+    if filtro_descricao:  # Quando o filtro for por descrição    
+        for coluna in colunas_interesse:
+            if coluna in filtro.columns:
+                dados[coluna] = dados[coluna].apply(limpar_valor)
+                total_coluna = dados[coluna].sum()
+                st.write(f"**Total de {coluna}:** R$ {total_coluna:,.2f}")
+    else:   
+        for coluna in colunas_interesse:
+            if coluna in filtro.columns:
+                filtro[coluna] = filtro[coluna].apply(limpar_valor)  # Aplicar a limpeza dos valores
+                total_coluna = filtro[coluna].sum()  # Calcular o total para as demais consultas
+                st.write(f"**Total de {coluna}:** R$ {total_coluna:,.2f}")
+            else:
+                st.write(f"**Total de {coluna}:** R$ 0.00")
