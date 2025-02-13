@@ -55,7 +55,7 @@ if uploaded_file is not None:
         municipio = st.selectbox('Escolha o município', dados['Município'].dropna().unique())
     if filtro_descricao:
         descricao = st.selectbox('Escolha a descrição', dados['Descrição'].dropna().unique())
-        nomes_correspondentes = dados[dados['Descrição'] == descricao]['Nome'].unique()
+        nomes_correspondentes = dados[(dados['Descrição'] == descricao) & (dados['Município'] == municipio)]['Nome'].unique()
 
         # Filtrar o DataFrame apenas pelos nomes encontrados (independente da descrição)
         dados = dados[dados['Nome'].isin(nomes_correspondentes)]
