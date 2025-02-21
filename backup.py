@@ -19,24 +19,34 @@ if uploaded_file is not None:
             dados[coluna].fillna(0, inplace=True)
 
     # Opções para habilitar ou desabilitar os filtros
-    filtro_municipio = st.checkbox('Filtrar por Município', value=True)
-    filtro_descricao = st.checkbox('Filtrar por Descrição', value=True)
-    filtro_equipamento = st.checkbox('Filtrar por Equipamento', value=True)
-    filtro_numero = st.checkbox('Filtrar por Número', value=True)
-    filtro_nome = st.checkbox('Filtrar por Nome', value=True)
-    filtro_data = st.checkbox('Filtrar por Data', value=True)
-    filtro_situacao = st.checkbox('Filtrar por Situação', value=True)
-    filtro_garantia = st.checkbox('Filtrar por Garantia', value=True)
-    filtro_problema = st.checkbox('Filtrar por Problema', value=True)
-    filtro_observacoes_recebimento = st.checkbox('Filtrar por Observações do recebimento', value=True)
-    filtro_tecnico = st.checkbox('Filtrar por Técnico', value=True)
-    filtro_observacoes_servico = st.checkbox('Filtrar por Observações do serviço', value=True)
-    filtro_observacoes_internas = st.checkbox('Filtrar por Observações internas', value=True)
-    filtro_data_conclusao = st.checkbox('Filtrar por Data de conclusão', value=True)
-    filtro_data_saida = st.checkbox('Filtrar por Data de Saída', value=True)
-    filtro_nome_vendedor = st.checkbox('Filtrar por Nome - Vendedor', value=True)
-    filtro_categoria = st.checkbox('Filtrar por Descrição - Categoria', value=True)
-    filtro_forma_pagamento = st.checkbox('Filtrar por Descrição - Forma de pagamento', value=True)
+    filtro_municipio = st.checkbox('Filtrar por Município', value=False)
+    filtro_descricao = st.checkbox('Filtrar por Descrição', value=False)
+    filtro_equipamento = st.checkbox('Filtrar por Equipamento', value=False)
+    filtro_numero = st.checkbox('Filtrar por Número', value=False)
+    filtro_nome_pessoa = st.checkbox('Nome', value=False)
+    filtro_nome = st.checkbox('Filtrar por Nome', value=False)
+    filtro_data = st.checkbox('Filtrar por Data', value=False)
+    filtro_situacao = st.checkbox('Filtrar por Situação', value=False)
+    filtro_garantia = st.checkbox('Filtrar por Garantia', value=False)
+    filtro_problema = st.checkbox('Filtrar por Problema', value=False)
+    filtro_observacoes_recebimento = st.checkbox('Filtrar por Observações do recebimento', value=False)
+    filtro_tecnico = st.checkbox('Filtrar por Técnico', value=False)
+    filtro_observacoes_servico = st.checkbox('Filtrar por Observações do serviço', value=False)
+    filtro_observacoes_internas = st.checkbox('Filtrar por Observações internas', value=False)
+    filtro_data_conclusao = st.checkbox('Filtrar por Data de conclusão', value=False)
+    filtro_data_saida = st.checkbox('Filtrar por Data de Saída', value=False)
+    filtro_nome_vendedor = st.checkbox('Filtrar por Nome - Vendedor', value=False)
+    filtro_categoria = st.checkbox('Filtrar por Descrição - Categoria', value=False)
+    filtro_forma_pagamento = st.checkbox('Filtrar por Descrição - Forma de pagamento', value=False)
+
+    # Opção para remover colunas
+    colunas_disponiveis = dados.columns.tolist()
+    colunas_a_remover = st.multiselect('Escolha as colunas a remover', colunas_disponiveis)
+
+    # Remover as colunas selecionadas
+    if colunas_a_remover:
+        dados.drop(columns=colunas_a_remover, inplace=True)
+        st.write("Colunas removidas com sucesso!")
 
     # Filtros para exibir os dados, com base nas opções ativadas
     municipio = descricao = equipamento = numero = nome = data = situacao = garantia = problema = observacoes_recebimento = tecnico = observacoes_servico = observacoes_internas = data_conclusao = data_saida = nome_vendedor = categoria = forma_pagamento = None
@@ -45,12 +55,20 @@ if uploaded_file is not None:
         municipio = st.selectbox('Escolha o município', dados['Município'].dropna().unique())
     if filtro_descricao:
         descricao = st.selectbox('Escolha a descrição', dados['Descrição'].dropna().unique())
+        nomes_correspondentes = dados[(dados['Descrição'] == descricao) & (dados['Município'] == municipio)]['Nome'].unique()
+
+        # Filtrar o DataFrame apenas pelos nomes encontrados (independente da descrição)
+        dados = dados[dados['Nome'].isin(nomes_correspondentes)]
+        
+
     if filtro_equipamento:
         equipamento = st.selectbox('Escolha o Equipamento', dados['Equipamento'].dropna().unique())
     if filtro_numero:
         numero = st.selectbox('Escolha o Número', dados['Número - Nota Fiscal'].dropna().unique())
+    if filtro_nome_pessoa:
+        nomePessoa = st.selectbox('Escolha o Nome', dados['Nome'].dropna().unique())
     if filtro_nome:
-        nome = st.selectbox('Escolha o Nome', dados['Nome - Vendedor'].dropna().unique())
+        nome = st.selectbox('Escolha o Nome', dados['Nome - Vendedor'].dropna().unique())    
     if filtro_data:
         data = st.selectbox('Escolha a Data', dados['Data'].dropna().unique())
     if filtro_situacao:
@@ -89,6 +107,8 @@ if uploaded_file is not None:
         filtro = filtro[filtro["Equipamento"] == equipamento]
     if filtro_numero:
         filtro = filtro[filtro["Número - Nota Fiscal"] == numero]
+    if filtro_nome_pessoa:
+        filtro = filtro[filtro["Nome"] == nomePessoa]    
     if filtro_nome:
         filtro = filtro[filtro["Nome - Vendedor"] == nome]
     if filtro_data:
@@ -118,15 +138,12 @@ if uploaded_file is not None:
     if filtro_forma_pagamento:
         filtro = filtro[filtro["Descrição - Forma de pagamento"] == forma_pagamento]
 
-    # Remover colunas desnecessárias
-    colunas_remover = [
-        "Município", "Garantia", "Nome - Vendedor", "Descrição - Categoria",
-        "Número - Nota Fiscal", "Número - Nota de serviço", "Descrição - Forma de pagamento"
-    ]
-    filtro.drop(columns=[col for col in colunas_remover if col in filtro.columns], inplace=True)
-
     # Exibir os dados filtrados
-    st.dataframe(filtro)  # Exibe os dados filtrados de forma interativa
+    if filtro_descricao: 
+        st.dataframe(dados)  # Exibe os dados filtrados de forma interativa
+        
+    else:
+        st.dataframe(filtro)  # Exibe os dados filtrados de forma interativa
 
     # Colunas de interesse para cálculo de totais
     colunas_interesse = [
@@ -142,12 +159,17 @@ if uploaded_file is not None:
         return valor
 
     # Calcular e exibir os totais das colunas de interesse
-    for coluna in colunas_interesse:
-        if coluna in filtro.columns:
-            filtro[coluna] = filtro[coluna].apply(limpar_valor)
-            total_coluna = filtro[coluna].sum()
-            st.write(f"**Total de {coluna}:** R$ {total_coluna:,.2f}")
-        else:
-            st.write(f"⚠️ A coluna '{coluna}' não foi encontrada nos dados.")
-else:
-    st.write("Por favor, faça o upload de um arquivo CSV.")
+    if filtro_descricao:  # Quando o filtro for por descrição    
+        for coluna in colunas_interesse:
+            if coluna in filtro.columns:
+                dados[coluna] = dados[coluna].apply(limpar_valor)
+                total_coluna = dados[coluna].sum()
+                st.write(f"**Total de {coluna}:** R$ {total_coluna:,.2f}")
+    else:   
+        for coluna in colunas_interesse:
+            if coluna in filtro.columns:
+                filtro[coluna] = filtro[coluna].apply(limpar_valor)  # Aplicar a limpeza dos valores
+                total_coluna = filtro[coluna].sum()  # Calcular o total para as demais consultas
+                st.write(f"**Total de {coluna}:** R$ {total_coluna:,.2f}")
+            else:
+                st.write(f"**Total de {coluna}:** R$ 0.00")
