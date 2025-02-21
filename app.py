@@ -54,11 +54,36 @@ if uploaded_file is not None:
     if filtro_municipio:
         municipio = st.selectbox('Escolha o município', dados['Município'].dropna().unique())
     if filtro_descricao:
-        descricao = st.selectbox('Escolha a descrição', dados['Descrição'].dropna().unique())
+        opcoes_descricao = ['Verificação de Equipamento', 'Manutencao FDM', 'Manutencao SLA', 'Treinamento HH', 'Impressão de Peças FDM', 'Impressão de Peças SLA']
+        
+        # Filtrar as opções que existem no DataFrame
+        opcoes_validas = [opcao for opcao in opcoes_descricao if opcao in dados['Descrição'].dropna().unique()]
+        
+        # Exibir o selectbox com as opções válidas
+        descricao = st.selectbox('Escolha a descrição', opcoes_validas)
+        
+        # Filtrar os dados com base na descrição e município
         nomes_correspondentes = dados[(dados['Descrição'] == descricao) & (dados['Município'] == municipio)]['Nome'].unique()
 
-        # Filtrar o DataFrame apenas pelos nomes encontrados (independente da descrição)
+        # Filtrar o DataFrame apenas pelos nomes encontrados
         dados = dados[dados['Nome'].isin(nomes_correspondentes)]
+        
+        # Filtrar para excluir as outras descrições da lista, mantendo apenas a escolhida
+        descricao_excluida = [opcao for opcao in opcoes_descricao if opcao != descricao]  # Exclui a descrição escolhida
+        dados = dados[~dados['Descrição'].isin(descricao_excluida)]  # Remove as linhas com as descrições não escolhidas
+
+        # Exibe a descrição selecionada
+        st.write(f"Descrição selecionada: {descricao}")
+
+            
+            
+        
+  
+        
+        
+
+      
+            
         
 
     if filtro_equipamento:
@@ -147,9 +172,9 @@ if uploaded_file is not None:
 
     # Colunas de interesse para cálculo de totais
     colunas_interesse = [
-        "Total das peças", "Total de serviços", "Preço total", 
-        "Quantidade/Horas", "Lucro", "Preço de custo"
-    ]
+    "Total das peças", "Total de serviços", "Preço total", 
+    "Quantidade/Horas", "Lucro", "Preço de custo"
+]
 
     # Função para limpar e converter valores monetários
     def limpar_valor(valor):
@@ -164,12 +189,22 @@ if uploaded_file is not None:
             if coluna in filtro.columns:
                 dados[coluna] = dados[coluna].apply(limpar_valor)
                 total_coluna = dados[coluna].sum()
-                st.write(f"**Total de {coluna}:** R$ {total_coluna:,.2f}")
+                
+                # Verifica se a coluna é "Quantidade/Horas" para não exibir o símbolo R$
+                if coluna == "Quantidade/Horas":
+                    st.write(f"**Total de {coluna}:** {total_coluna:,.2f}")
+                else:
+                    st.write(f"**Total de {coluna}:** R$ {total_coluna:,.2f}")
     else:   
         for coluna in colunas_interesse:
             if coluna in filtro.columns:
                 filtro[coluna] = filtro[coluna].apply(limpar_valor)  # Aplicar a limpeza dos valores
                 total_coluna = filtro[coluna].sum()  # Calcular o total para as demais consultas
-                st.write(f"**Total de {coluna}:** R$ {total_coluna:,.2f}")
+                
+                # Verifica se a coluna é "Quantidade/Horas" para não exibir o símbolo R$
+                if coluna == "Quantidade/Horas":
+                    st.write(f"**Total de {coluna}:** {total_coluna:,.2f}")
+                else:
+                    st.write(f"**Total de {coluna}:** R$ {total_coluna:,.2f}")
             else:
                 st.write(f"**Total de {coluna}:** R$ 0.00")
