@@ -63,10 +63,10 @@ if uploaded_file is not None:
         descricao = st.selectbox('Escolha a descrição', opcoes_validas)
         
         # Filtrar os dados com base na descrição e município
-        nomes_correspondentes = dados[(dados['Descrição'] == descricao) & (dados['Município'] == municipio)]['Nome'].unique()
+        nomes_correspondentes = dados[(dados['Descrição'] == descricao) & (dados['Município'] == municipio)]['Número'].unique()
 
         # Filtrar o DataFrame apenas pelos nomes encontrados
-        dados = dados[dados['Nome'].isin(nomes_correspondentes)]
+        dados = dados[dados['Número'].isin(nomes_correspondentes)]
         
         # Filtrar para excluir as outras descrições da lista, mantendo apenas a escolhida
         descricao_excluida = [opcao for opcao in opcoes_descricao if opcao != descricao]  # Exclui a descrição escolhida
@@ -74,11 +74,17 @@ if uploaded_file is not None:
 
         # Exibe a descrição selecionada
         st.write(f"Descrição selecionada: {descricao}")
+       
 
+       
+
+                
+
+                    
+                        
+                    
             
-            
-        
-  
+    
         
         
 
@@ -166,6 +172,7 @@ if uploaded_file is not None:
     # Exibir os dados filtrados
     if filtro_descricao: 
         st.dataframe(dados)  # Exibe os dados filtrados de forma interativa
+        
         
     else:
         st.dataframe(filtro)  # Exibe os dados filtrados de forma interativa
