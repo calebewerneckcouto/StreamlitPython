@@ -4,12 +4,20 @@ import streamlit as st
 # Título da página
 st.title('Exibição de Dados - Relatório')
 
+ordem_colunas = [
+    "Número", "Nome", "Data", "Descrição", "Total das peças", "Preço total", "Preço de custo", "Total de serviços", "Lucro", "Equipamento", "Número de série do equipamento", "Município", "Técnico", "Quantidade/Horas", "Nome - Vendedor", "Column1", "Problema", "Observações do recebimento", "_1", "Observações do serviço", "Observações internas", "Data de conclusão", "Data de Saída", "Hora de início", "Hora de término", "Garantia", "Descrição - Categoria", "Situação", "Número - Nota Fiscal", "Número - Nota de serviço", "Descrição - Forma de pagamento"
+]
+
 # Carregar o arquivo CSV
 uploaded_file = st.file_uploader("Escolha um arquivo CSV", type="csv")
 
 if uploaded_file is not None:
     # Carregar os dados do arquivo enviado
     dados = pd.read_csv(uploaded_file, delimiter=";")
+    
+    # Ajustar a ordem das colunas
+    colunas_presentes = [col for col in ordem_colunas if col in dados.columns]
+    dados = dados[colunas_presentes]
 
     # Substituir NaN por valores adequados: "" para texto, 0 para números
     for coluna in dados.columns:
@@ -54,7 +62,7 @@ if uploaded_file is not None:
     if filtro_municipio:
         municipio = st.selectbox('Escolha o município', dados['Município'].dropna().unique())
     if filtro_descricao:
-        opcoes_descricao = ['Verificação de Equipamento', 'Manutencao FDM', 'Manutencao SLA', 'Treinamento HH', 'Impressão de Peças FDM', 'Impressão de Peças SLA']
+        opcoes_descricao = ['Verificação de Equipamento', 'Manutencao FDM', 'Manutencao SLA', 'Treinamento HH', 'Impressão de Peças FDM', 'Impressão de Peças SLA','Garantia','Entrega Técnica','Manutenção Interna',]
         
         # Filtrar as opções que existem no DataFrame
         opcoes_validas = [opcao for opcao in opcoes_descricao if opcao in dados['Descrição'].dropna().unique()]
