@@ -5,7 +5,7 @@ import streamlit as st
 st.title('Exibição de Dados - Relatório')
 
 ordem_colunas = [
-    "Número", "Nome", "Data", "Descrição", "Total das peças", "Preço total", "Preço de custo", "Total de serviços", "Lucro", "Equipamento", "Número de série do equipamento", "Município", "Técnico", "Quantidade/Horas", "Nome - Vendedor", "Column1", "Problema", "Observações do recebimento", "_1", "Observações do serviço", "Observações internas", "Data de conclusão", "Data de Saída", "Hora de início", "Hora de término", "Garantia", "Descrição - Categoria", "Situação", "Número - Nota Fiscal", "Número - Nota de serviço", "Descrição - Forma de pagamento"
+    "Número", "Nome", "Data", "Descrição", "Total das peças", "Preço total", "Preço de custo", "Total de serviços", "Lucro", "Equipamento", "Município", "Técnico", "Nome - Vendedor",	"Situação"
 ]
 
 # Carregar o arquivo CSV
